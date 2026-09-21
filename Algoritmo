@@ -1,0 +1,27 @@
+Preparação dos jogadores:
+Criar os jogadores;
+Cada jogador tem um saldo inicial - 10€;
+Comprar pelo menos 1 e até 3 cartões - 1€ cada, descontado no saldo inicial;
+Não permite comprar 0 cartões - não pode jogar;
+O valor dos cartões comprados é somado e entra no valor "Prémio";
+Atualiza o saldo e o número de cartões;
+Cada cartão é gerado com 15 números fixos, de 0 a 99, organizados em grelha 3 linhas x 5 colunas , únicos dentro do cartão, mas que podem repetir entre cartões;
+
+Jogo:
+De forma aleatória, são chamados os número inteiros de 0 a 99, de uma lista inicial;
+Cada número chamado, é retirado da lista inicial;
+O número chamado encontra-se em algum dos cartões dos jogadores? S/N;
+se S - marcar o número chamado nos cartões, antes de chamar o próximo;
+se N - Verificar o próximo cartão;
+Todos os cartões foram verificados? S/N
+S - chamar o próximo número;
+N - Verificar próximo cartão;
+Repetir até que uma linha seja completada em qualquer cartão;
+Na 1ª vez que uma linha for completada, por jogo, fazer print de "Linha" e retirar 10% do valor total do "Prémio", juntando esse valor ao saldo do jogador que fez linha;
+Se houver mais do que 1 jogador a fazer linha, os 10% são divididos entre os jogadores que contém linha;
+Prossegue a contagem até que um cartão seja completamente preenchido;
+Quando o cartão é completamente preenchido fazer print de "Bingo" e adicionar o resto do "Prémio" ao saldo do jogador vencedor.
+Se houver mais do que 1 jogador a fazer "Bingo", o prémio é dividido entre os jogadores que preencheram o cartão em 1º lugar neste jogo;
+Decisão de Novo jogo? S/N;
+S - Inicia tudo novamente;
+N - Fecha o programa
