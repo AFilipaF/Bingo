@@ -1,0 +1,161 @@
+#Objetivo: Fazer um bingo com probabilidades aleatórias
+
+#Librarys
+import random
+
+#Variáveis
+novo_jogo = True
+while novo_jogo == True:
+    
+    preco_cartao = 1
+    sorteio = list(range(0, 100))
+    premio = 0
+    premio_linha = False
+
+
+    #Gerar cartão
+    def gerar_cartao (jogador):
+        numeros = random.sample(sorteio, 15) #Procura 15 números aleatórios dentro da lista de sorteio
+        linha_1 = numeros[0:5]
+        linha_2 = numeros[5:10]
+        linha_3 = numeros[10:15]
+        cartao = {
+            "jogador": jogador,
+            "numeros": [linha_1, linha_2, linha_3],
+            "marcados": [[False, False, False, False, False],
+                            [False, False, False, False, False],
+                            [False, False, False, False, False]]
+        }
+        return cartao
+    
+    #Verificar Linha
+    def verificar_linha (cartao):
+        return all(cartao ["marcados"][0]) or all(cartao["marcados"][1]) or all(cartao["marcados"][2])
+    
+    #Verificar Bingo
+    def verificar_bingo (cartao):
+        return all(cartao ["marcados"][0]) and all(cartao["marcados"][1]) and all(cartao["marcados"][2])
+    
+    #Mostrar cartão
+    def mostrar_cartao(cartao_lido):
+        for linha_marcada, linha_numeros in zip(cartao_lido["marcados"], cartao_lido["numeros"]):
+            mostrar_linhas = []
+            for marcado, numero in zip(linha_marcada, linha_numeros):
+                if marcado:
+                    mostrar_linhas.append(numero)
+                else:
+                    mostrar_linhas.append("-")
+            print(mostrar_linhas)
+
+    #Criar jogador
+    id_jogadores = [] #Cria uma lista onde vão ser guardados os jogadores
+    adicionar_jogador = True
+    while adicionar_jogador: #Enquanto verdadeiro, o ciclo repete-se
+        resposta = input("Novo jogador? (s/n): ").lower()
+        if resposta == "s":
+            nome = input("Introduza o nome do jogador: ")
+            jogador = {
+                "nome": nome,
+                "saldo": 10,
+                "cartoes": [] #número de cartões que o jogador comprar
+            }
+            
+            n_cartoes = int(input("Quantos cartões pretende comprar?: ")) #Nº de cartões associados ao jogador que está a ser criado
+            while n_cartoes <= 0 or n_cartoes > 3:
+                print("Escolha entre 1 a 3 cartões")
+                n_cartoes = int(input("Quantos cartões pretende comprar?: "))
+            print("Foram criados ", n_cartoes, " cartões.")
+            
+            for i in range (n_cartoes): #Gera cxartões com base no número de cartões que o jogador comprou
+                cartao_novo = gerar_cartao(jogador)
+                jogador["cartoes"].append(cartao_novo)
+        
+            jogador["saldo"] = jogador["saldo"] - n_cartoes #Atualização do saldo
+            premio = premio + n_cartoes * preco_cartao #Atualização do prémio
+            
+            id_jogadores.append(jogador)
+            print("Existem", len(id_jogadores), "jogadores em jogo")
+            print("Nome do jogador: ", jogador["nome"])
+            for indice, cartao in enumerate (jogador["cartoes"]):
+                print("Cartão ", indice + 1)
+                print(cartao["numeros"][0])
+                print(cartao["numeros"][1])
+                print(cartao["numeros"][2])
+        
+        elif resposta == "n":
+            adicionar_jogador = False #Termina o ciclo
+
+        else:
+            print("Responda com 's' ou 'n'")
+
+
+    pesquisa = input("Coloque o nome do jogador que deseja visualizar ou carregue ENTER para avançar: ")
+    jogador_encontrado = False
+    for jogador in id_jogadores:
+        if pesquisa.casefold() == jogador["nome"].casefold(): #procura os nomes independentemente da forma como são escritos (ana, ANA, aNa, Ana)
+            jogador_encontrado = True
+            print("Nome do jogador: ", jogador["nome"])
+            for indice, cartao in enumerate (jogador["cartoes"]):
+                print("Cartão ", indice + 1)
+                print(cartao["numeros"][0])
+                print(cartao["numeros"][1])
+                print(cartao["numeros"][2])
+                        
+            break #Sai do ciclo
+    else:
+        print("Nome de jogador não encontrado")
+
+    #Sorteio
+    vencedor_bingo = [] #Cria uma lista onde se guardam os jogadores que já fizeram bingo
+    while len(vencedor_bingo) == 0:
+        numero_chamado = random.choice(sorteio) #Procura 1 número aleatório dentro da lista de sorteio
+        print(numero_chamado)
+        sorteio.remove(numero_chamado) #Retira o número chamado da lista do sorteio
+        for jogador in id_jogadores: #Vai buscar um jogador dentro da lista de jogadores
+            for cartao_lido in jogador["cartoes"]: #Vai buscar um cartão dentro dos cartões daquele jogador
+                for indice_linha, linha in enumerate (cartao_lido["numeros"]): #Vai buscar uma linha dentro do cartão
+                    for indice_coluna, valor in enumerate (linha): #Vai buscar a coluna dentro da linha
+                        if valor == numero_chamado: #Valida se o número naquela linha e coluna é igual ao número que saiu
+                            cartao_lido["marcados"][indice_linha][indice_coluna] = True #Vai à lista dos números marcados e altera o valor boleano naquela linha + coluna para True
+                            print(jogador["nome"])
+                            mostrar_cartao(cartao_lido)
+
+        #Prémio linha
+        if not premio_linha:
+            vencedor_linha = [] #Cria uma lista onde se guardam os jogadores que já fizeram linha
+            for jogador in id_jogadores:
+                for cartao_lido in jogador["cartoes"]:
+                    if verificar_linha(cartao_lido):
+                        vencedor_linha.append(jogador)
+
+            if len(vencedor_linha) != 0:
+                premio_l_total = (premio * 0.10)
+                premio_l = premio_l_total/len(vencedor_linha)
+                for jogador_vencedor in vencedor_linha:
+                    jogador_vencedor["saldo"] = jogador_vencedor["saldo"] + premio_l
+                    print("Parabéns! O jogador ", jogador_vencedor["nome"], " ganhou o prémio de LINHA. Foram adiconados ", f"{premio_l:.2f}", "€ ao seu saldo." )
+                premio = premio - premio_l_total
+                premio_linha = True
+        
+        #Prémio Bingo
+        for jogador in id_jogadores:
+            for cartao_lido in jogador["cartoes"]:
+                if verificar_bingo(cartao_lido):
+                    vencedor_bingo.append(jogador)
+                    
+        if len(vencedor_bingo) != 0:
+            premio_bingo = premio / len(vencedor_bingo)
+            for jogador_vencedor in vencedor_bingo:
+                jogador_vencedor["saldo"] = jogador_vencedor["saldo"] + premio_bingo
+                print("Parabéns! O jogador ", jogador_vencedor["nome"], " ganhou o prémio de BINGO. Foram adiconados ", f"{premio_bingo:.2f}", "€ ao seu saldo.")
+                                
+        
+        if len(vencedor_bingo) == 0:
+            input("Carregue ENTER para ver o próximo número")
+        
+
+    resposta_novo_jogo = input("Deseja iniciar um NOVO JOGO? (s/n)").lower()
+    if resposta_novo_jogo == "s":
+        novo_jogo = True
+    else:
+        novo_jogo = False
